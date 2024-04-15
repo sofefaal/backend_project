@@ -1,5 +1,5 @@
-
-const {fetchTopics} = require("../models/topics.model")
+const endpoint = require("../endpoints.json")
+const {fetchTopics} = require("../models/model")
 
 function getTopics(req, res, next) {
     const topicArr = req.params
@@ -12,4 +12,8 @@ function getTopics(req, res, next) {
     })
 }
 
-module.exports = {getTopics}
+function getEndpoints(req, res, next) {
+  res.status(200).send({ endpoint });
+}
+
+module.exports = {getTopics, getEndpoints}
