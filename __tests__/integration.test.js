@@ -34,7 +34,7 @@ describe("GET: /api/invalid_endpoint", () => {
       });
   });
 });
-describe.only("GET: /api", () => {
+describe("GET: /api", () => {
   test("Should return a JSON object for all articles", () => {
     return request(app)
     .get("/api/")
