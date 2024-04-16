@@ -1,5 +1,8 @@
 const endpoint = require("../endpoints.json")
-const {fetchTopics} = require("../models/model")
+const {
+    fetchTopics,
+    fetchArticleId
+} = require("../models/model")
 
 function getTopics(req, res, next) {
     const topicArr = req.params
@@ -16,4 +19,19 @@ function getEndpoints(req, res, next) {
   res.status(200).send({ endpoint });
 }
 
-module.exports = {getTopics, getEndpoints}
+function getArticleById(req, res, next) {
+    const articleArr = req.params
+    return fetchArticleId(articleArr.article_id)
+    .then((articles) => {
+        res.status(200).send({articles: articles})
+    })
+    .catch((err) => {
+        next(err)
+    })
+} 
+
+module.exports = {
+    getTopics, 
+    getEndpoints,
+    getArticleById
+}

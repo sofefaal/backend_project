@@ -1,3 +1,5 @@
+const { articleData } = require(".");
+
 module.exports = [
   {
     title: "Living in the shadow of a great man",
