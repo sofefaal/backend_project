@@ -8,6 +8,7 @@ const {
   fetchAllComments,
   insertComment
 } = require("../models/comments.model");
+const checkExists = require("../check_exists/checkExist");
 
 function getTopics(req, res, next) {
   return fetchTopics()
@@ -45,11 +46,14 @@ function getAllArticles(req, res, next) {
 }
 
 function getComments(req, res, next) {
-    const comment = req.params
-  return fetchAllComments(comment.article_id)
+    const {article_id} = req.params
+    
+  return checkExists("articles", "article_id", article_id)
+    .then(() => {
+      return fetchAllComments(article_id)
+    })
     .then((comments) => {
-      res.status(200).send({ comments });
-      
+      res.status(200).send({ comments })
     })
     .catch((err) => {
       next(err);
