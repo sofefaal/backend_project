@@ -1,19 +1,20 @@
 const db = require("../db/connection");
 const data = require("../db/data/development-data/index");
-const format = require("pg-format");
+const checkExists = require("../check_exists/checkExist")
+
 
 function fetchAllComments(article_id) {
-  return db
-    .query(
-      `SELECT * FROM comments WHERE comments.article_id=$1 ORDER BY comments.created_at DESC;`,
-      [article_id]
-    )
-    .then(({ rows: comments }) => {
-      if (comments.length === 0) {
-        return Promise.reject({ status: 404, msg: "comment not found" });
-      }
-      return comments;
-    });
+  return checkExists("articles", "article_id", article_id)
+  .then(() => {
+    return db
+      .query(
+        `SELECT * FROM comments WHERE comments.article_id=$1 ORDER BY comments.created_at DESC;`,
+        [article_id]
+      )
+      .then(({ rows: comments }) => {
+        return comments;
+      });
+  })
 }
 
 function insertComment(newComment, article_id) {

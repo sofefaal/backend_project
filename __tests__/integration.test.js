@@ -130,13 +130,22 @@ describe("GET: /api/articles/:article_id/comments", () => {
         });
       });
   });
+  test("GET: responds with a 200 status when article_id exists but no comment present", () => {
+    return request(app)
+    .get("/api/articles/13/comments")
+    .expect(200)
+    .then(({body: {comments}}) => {
+      expect(comments).toHaveLength(0)
+    })
+  })
+
   test("GET: responds with a 404 status code when passed an ID which does not exist in the database", () => {
     return request(app)
       .get("/api/articles/200/comments")
       .expect(404)
       .then((response) => {
         const { body } = response;
-        expect(body).toEqual({ message: "comment not found" });
+        expect(body).toEqual({ message: "Resource not found" });
       });
   });
   test("GET: responds with a 400 status code when passed an invalid ID", () => {
