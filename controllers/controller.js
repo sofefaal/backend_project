@@ -4,7 +4,10 @@ const {
   fetchArticleId,
   fetchAllArticles,
 } = require("../models/articles.model");
-const fetchAllComments = require("../models/comments.model");
+const {
+  fetchAllComments,
+  insertComment
+} = require("../models/comments.model");
 
 function getTopics(req, res, next) {
   return fetchTopics()
@@ -53,10 +56,24 @@ function getComments(req, res, next) {
     });
 }
 
+function addComments(req, res, next) {
+  const {article_id} = req.params
+
+  insertComment(req.body, article_id)
+  .then((newComment) => {
+    res.status(201).send({ newComment })
+  
+  })
+  .catch((err) => {
+    next(err)
+  })
+}
+
 module.exports = {
   getTopics,
   getEndpoints,
   getArticleById,
   getAllArticles,
   getComments,
+  addComments
 };
