@@ -85,7 +85,7 @@ describe("GET: /api/articles/:article_id", () => {
       .expect(400)
       .then((response) => {
         const { body } = response;
-        expect(body).toEqual({ message: "invalid article_id, bad request" });
+        expect(body).toEqual({ message: "bad request" });
       });
   });
 });
@@ -96,18 +96,56 @@ describe("GET: /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        const articles  = body.articles;
+        const articles = body.articles;
         articles.forEach((article) => {
-          expect(Object.keys(article).length).toBe(8)
+          expect(Object.keys(article).length).toBe(8);
           expect(typeof article.author).toBe("string");
           expect(typeof article.title).toBe("string");
-          expect(typeof article.article_id).toBe("number")
+          expect(typeof article.article_id).toBe("number");
           expect(typeof article.topic).toBe("string");
           expect(typeof article.created_at).toBe("string");
           expect(typeof article.votes).toBe("number");
-          expect(typeof article.article_img_url).toBe("string")
-          expect(typeof article.comment_count).toBe("string")
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.comment_count).toBe("number");
         });
       });
   });
+});
+
+describe("GET: /api/articles/:article_id/comments", () => {
+  test("GET: responds with a 200 status code, with an array of comments objects for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const commentsArticleId = body.comments;
+        commentsArticleId.forEach((comment) => {
+          expect(Object.keys(comment).length).toBe(6);
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.body).toBe("string");
+          expect(typeof comment.article_id).toBe("number");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+        });
+      });
+  });
+  test("GET: responds with a 404 status code when passed an ID which does not exist in the database", () => {
+    return request(app)
+      .get("/api/articles/200/comments")
+      .expect(404)
+      .then((response) => {
+        const { body } = response;
+        expect(body).toEqual({ message: "comment not found" });
+      });
+  });
+    test("GET: responds with a 400 status code when passed an invalid ID", () => {
+      return request(app)
+        .get("/api/articles/hello/comments")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual({ message: "bad request" });
+        });
+    });
 });
