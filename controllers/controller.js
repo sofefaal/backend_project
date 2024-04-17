@@ -1,16 +1,19 @@
-const endpoint = require("../endpoints.json")
-const fetchTopics = require("../models/topics.model")
-const {fetchArticleId, fetchAllArticles} = require("../models/articles.model")
+const endpoint = require("../endpoints.json");
+const fetchTopics = require("../models/topics.model");
+const {
+  fetchArticleId,
+  fetchAllArticles,
+} = require("../models/articles.model");
+const fetchAllComments = require("../models/comments.model");
 
 function getTopics(req, res, next) {
-    const topicArr = req.params
-    return fetchTopics(topicArr)
+  return fetchTopics()
     .then((topics) => {
-        res.status(200).send({topics})
+      res.status(200).send({ topics });
     })
     .catch((err) => {
-        next(err)
-    })
+      next(err);
+    });
 }
 
 function getEndpoints(req, res, next) {
@@ -18,30 +21,42 @@ function getEndpoints(req, res, next) {
 }
 
 function getArticleById(req, res, next) {
-    const article = req.params
-    return fetchArticleId(article.article_id)
+  const article = req.params;
+  return fetchArticleId(article.article_id)
     .then((article) => {
-        res.status(200).send({article: article})
+      res.status(200).send({ article: article });
     })
     .catch((err) => {
-        next(err)
-    })
-} 
+      next(err);
+    });
+}
 
 function getAllArticles(req, res, next) {
-    return fetchAllArticles()
+  return fetchAllArticles()
     .then((articles) => {
-        res.status(200).send({articles})
+      res.status(200).send({ articles });
     })
     .catch((err) => {
-        console.log(err)
-        next(err)
+      next(err);
+    });
+}
+
+function getComments(req, res, next) {
+    const comment = req.params
+  return fetchAllComments(comment.article_id)
+    .then((comments) => {
+      res.status(200).send({ comments });
+      
     })
+    .catch((err) => {
+      next(err);
+    });
 }
 
 module.exports = {
-    getTopics, 
-    getEndpoints,
-    getArticleById,
-    getAllArticles
-}
+  getTopics,
+  getEndpoints,
+  getArticleById,
+  getAllArticles,
+  getComments,
+};
