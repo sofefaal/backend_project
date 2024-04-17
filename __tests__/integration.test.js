@@ -139,13 +139,80 @@ describe("GET: /api/articles/:article_id/comments", () => {
         expect(body).toEqual({ message: "comment not found" });
       });
   });
-    test("GET: responds with a 400 status code when passed an invalid ID", () => {
+  test("GET: responds with a 400 status code when passed an invalid ID", () => {
+    return request(app)
+      .get("/api/articles/hello/comments")
+      .expect(400)
+      .then((response) => {
+        const { body } = response;
+        expect(body).toEqual({ message: "bad request" });
+      });
+  });
+});
+describe("POST: /api/articles/:article_id/comments", () => {
+  test("POST: responds with a 201 status code when a new comment is added", () => {
+    const newComment = {
+      username: "butter_bridge",
+      body: "This was okay, wasn't super intrigued when I was reading this article",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        const { newComment } = body;
+
+        expect(Object.keys(newComment).length).toBe(6);
+        expect(typeof newComment.comment_id).toBe("number");
+        expect(typeof newComment.body).toBe("string");
+        expect(typeof newComment.article_id).toBe("number");
+        expect(typeof newComment.author).toBe("string");
+        expect(typeof newComment.votes).toBe("number");
+        expect(typeof newComment.created_at).toBe("string");
+      });
+  });
+  test("POST: responds with a 201 status code, with the correct object structure", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This article is amazing, 100% recommend",
+      };
       return request(app)
-        .get("/api/articles/hello/comments")
-        .expect(400)
-        .then((response) => {
-          const { body } = response;
-          expect(body).toEqual({ message: "bad request" });
-        });
-    });
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .then(({body}) => {
+        const { newComment } = body
+        expect(newComment.comment_id).toBe(19);
+        expect(newComment.body).toBe("This article is amazing, 100% recommend");
+        expect(newComment.article_id).toBe(1);
+        expect(newComment.author).toBe("butter_bridge");
+        expect(newComment.votes).toBe(0);
+        expect(typeof newComment.created_at).toBe("string");
+      })
+  })
+  test("POST: responds with a 400 status code when provided an ID which does not exist in the database", () => {
+    return request(app)
+    .post("/api/articles/11111/comments")
+    .send({
+      username: "Do_not_exist",
+      body: "hello" 
+    })
+    .expect(400)
+    .then((response) => {
+      const {body} = response
+      expect(body).toEqual({ message: "bad request" });
+    })
+  })
+  test("POST: responds with a 404 status code no ID is provided", () => {
+    return request(app)
+    .post("/api/articles//comments")
+    .send({
+      username: "Do_not_exist",
+      body: "hello"
+    })
+    .expect(404)
+    .then((response) => {
+      const {body} = response
+      expect(body).toEqual({message: "Path does not exist"})
+    })
+  })
 });
