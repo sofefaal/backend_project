@@ -285,3 +285,28 @@ describe("PATCH: /api/articles/:article_id", () => {
         });
     });
 });
+describe("DELETE: /api/comments/:comment_id", () => {
+  test("DELETE: responds 204 status code when successfully deletes the specified comment based on comment_id", () => {
+    return request(app)
+    .delete("/api/comments/16")
+    .expect(204)
+  })
+  test("DELETE: responds 404 status code when provided comment_id which does not exist in the database", () => {
+    return request(app)
+    .delete("/api/comments/123456")
+    .expect(404)
+    .then((response) => {
+      const { body } = response
+      expect(body).toEqual({message: "Comment cannot be removed since comment_id does not exist, please try again"})
+    })
+  });
+    test("DELETE: responds 400 status code when provided with an invalid ID", () => {
+      return request(app)
+        .delete("/api/comments/hello_world")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual({message: "bad request"});
+        });
+    });
+})

@@ -11,8 +11,8 @@ function fetchAllComments(article_id) {
         `SELECT * FROM comments WHERE comments.article_id=$1 ORDER BY comments.created_at DESC;`,
         [article_id]
       )
-      .then(({ rows: comments }) => {
-        return comments;
+      .then(({ rows }) => {
+        return rows;
       });
   })
 }
@@ -36,7 +36,23 @@ function insertComment(newComment, article_id) {
     });
 }
 
+function removeCommentById(comment_id) {
+  return db
+  .query(`DELETE FROM comments WHERE comment_id = $1 RETURNING *;`,[comment_id])
+  .then(({rows}) => {
+    if(rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "Comment cannot be removed since comment_id does not exist, please try again",
+      });
+    }
+    return rows
+  })
+
+}
+
 module.exports = {
   fetchAllComments,
   insertComment,
+  removeCommentById
 };
