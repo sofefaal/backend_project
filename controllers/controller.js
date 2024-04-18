@@ -13,6 +13,7 @@ const {
 } = require("../models/comments.model");
 
 const checkExists = require("../check_exists/checkExist");
+const fetchAllUsers = require("../models/users.model");
 
 function getTopics(req, res, next) {
   return fetchTopics()
@@ -101,6 +102,17 @@ function deleteCommentById(req, res, next) {
 
 }
 
+function getUsers(req, res, next) {
+   return fetchAllUsers()
+     .then((users) => {
+       res.status(200).send({ users });
+     })
+     .catch((err) => {
+       next(err);
+     });
+
+}
+
 module.exports = {
   getTopics,
   getEndpoints,
@@ -109,5 +121,6 @@ module.exports = {
   getComments,
   addComments,
   getUpdatedArticles,
-  deleteCommentById
+  deleteCommentById,
+  getUsers
 };
