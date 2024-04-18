@@ -3,11 +3,14 @@ const fetchTopics = require("../models/topics.model");
 const {
   fetchArticleId,
   fetchAllArticles,
+  fetchUpdatedArticles
 } = require("../models/articles.model");
+
 const {
   fetchAllComments,
   insertComment
 } = require("../models/comments.model");
+
 const checkExists = require("../check_exists/checkExist");
 
 function getTopics(req, res, next) {
@@ -73,11 +76,24 @@ function addComments(req, res, next) {
   })
 }
 
+function getUpdatedArticles(req, res, next) {
+  const { article_id } = req.params
+
+  fetchUpdatedArticles(req.body, article_id)
+  .then((articleVotes) => {
+    res.status(200).send({ articleVotes })
+  })
+  .catch((err) => {
+    next(err)
+  })
+}
+
 module.exports = {
   getTopics,
   getEndpoints,
   getArticleById,
   getAllArticles,
   getComments,
-  addComments
+  addComments,
+  getUpdatedArticles
 };

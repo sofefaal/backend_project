@@ -34,4 +34,29 @@ function fetchAllArticles() {
 
 }
 
-module.exports = {fetchArticleId, fetchAllArticles}
+function fetchUpdatedArticles(articleVotes, article_id) {
+  const { inc_votes } = articleVotes
+  
+  return db
+  .query(
+    `UPDATE articles
+    SET votes = votes + $2
+    WHERE article_id = $1
+    RETURNING *;`,
+    [article_id, inc_votes]
+  )
+  .then(({rows}) => {
+     if (!rows[0]) {
+       return Promise.reject({ status: 404, msg: "article_id not found" });
+     }
+    return rows[0]
+  })
+
+
+}
+
+module.exports = {
+  fetchArticleId,
+  fetchAllArticles,
+  fetchUpdatedArticles
+  }
