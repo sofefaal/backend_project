@@ -8,7 +8,8 @@ const {
 
 const {
   fetchAllComments,
-  insertComment
+  insertComment,
+  removeCommentById
 } = require("../models/comments.model");
 
 const checkExists = require("../check_exists/checkExist");
@@ -88,6 +89,18 @@ function getUpdatedArticles(req, res, next) {
   })
 }
 
+function deleteCommentById(req, res, next) {
+  const { comment_id } = req.params
+  removeCommentById(comment_id)
+  .then(() => {
+    res.status(204).send()
+  })
+  .catch((err) => {
+    next(err)
+  })
+
+}
+
 module.exports = {
   getTopics,
   getEndpoints,
@@ -95,5 +108,6 @@ module.exports = {
   getAllArticles,
   getComments,
   addComments,
-  getUpdatedArticles
+  getUpdatedArticles,
+  deleteCommentById
 };
