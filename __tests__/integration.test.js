@@ -132,12 +132,12 @@ describe("GET: /api/articles/:article_id/comments", () => {
   });
   test("GET: responds with a 200 status when article_id exists but no comment present", () => {
     return request(app)
-    .get("/api/articles/13/comments")
-    .expect(200)
-    .then(({body: {comments}}) => {
-      expect(comments).toHaveLength(0)
-    })
-  })
+      .get("/api/articles/13/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toHaveLength(0);
+      });
+  });
 
   test("GET: responds with a 404 status code when passed an ID which does not exist in the database", () => {
     return request(app)
@@ -181,47 +181,107 @@ describe("POST: /api/articles/:article_id/comments", () => {
       });
   });
   test("POST: responds with a 201 status code, with the correct object structure", () => {
-      const newComment = {
-        username: "butter_bridge",
-        body: "This article is amazing, 100% recommend",
-      };
-      return request(app)
+    const newComment = {
+      username: "butter_bridge",
+      body: "This article is amazing, 100% recommend",
+    };
+    return request(app)
       .post("/api/articles/1/comments")
       .send(newComment)
-      .then(({body}) => {
-        const { newComment } = body
+      .then(({ body }) => {
+        const { newComment } = body;
         expect(newComment.comment_id).toBe(19);
         expect(newComment.body).toBe("This article is amazing, 100% recommend");
         expect(newComment.article_id).toBe(1);
         expect(newComment.author).toBe("butter_bridge");
         expect(newComment.votes).toBe(0);
         expect(typeof newComment.created_at).toBe("string");
-      })
-  })
+      });
+  });
   test("POST: responds with a 400 status code when provided an ID which does not exist in the database", () => {
     return request(app)
-    .post("/api/articles/11111/comments")
-    .send({
-      username: "Do_not_exist",
-      body: "hello" 
-    })
-    .expect(400)
-    .then((response) => {
-      const {body} = response
-      expect(body).toEqual({ message: "bad request" });
-    })
-  })
+      .post("/api/articles/11111/comments")
+      .send({
+        username: "Do_not_exist",
+        body: "hello",
+      })
+      .expect(400)
+      .then((response) => {
+        const { body } = response;
+        expect(body).toEqual({ message: "bad request" });
+      });
+  });
   test("POST: responds with a 404 status code no ID is provided", () => {
     return request(app)
-    .post("/api/articles//comments")
-    .send({
-      username: "Do_not_exist",
-      body: "hello"
-    })
-    .expect(404)
-    .then((response) => {
-      const {body} = response
-      expect(body).toEqual({message: "Path does not exist"})
-    })
-  })
+      .post("/api/articles//comments")
+      .send({
+        username: "Do_not_exist",
+        body: "hello",
+      })
+      .expect(404)
+      .then((response) => {
+        const { body } = response;
+        expect(body).toEqual({ message: "Path does not exist" });
+      });
+  });
+});
+describe("PATCH: /api/articles/:article_id", () => {
+  test("PATCH: responds with a 200 status code when updated votes by increment of 1", () => {
+    let newVote = 1;
+    const articleVotes = { inc_votes: newVote };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(articleVotes)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articleVotes.votes).toBe(101);
+      });
+  });
+  test("PATCH: responds with a 200 status code when updated votes by decrement of 100", () => {
+    let newVote = -100;
+    const articleVotes = { inc_votes: newVote };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(articleVotes)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articleVotes.votes).toBe(0);
+      });
+  });
+  test("PATCH: responds with a 404 when provided article_id which does not exist in the database", () => {
+    let newVote = -100;
+    const articleVotes = { inc_votes: newVote };
+    return request(app)
+      .patch("/api/articles/12345")
+      .send(articleVotes)
+      .expect(404)
+      .then((response) => {
+        const { body } = response;
+        expect(body).toEqual({ message: "article_id not found" });
+      });
+  });
+  test("PATCH: responds with a 400 when provided an invalid ID", () => {
+    let newVote = -100;
+    const articleVotes = { inc_votes: newVote };
+    return request(app)
+      .patch("/api/articles/hello-there")
+      .send(articleVotes)
+      .expect(400)
+      .then((response) => {
+        const { body } = response;
+        expect(body).toEqual({ message: "bad request" });
+      });
+  });
+    test("PATCH: responds with a 400 when provided an invalid vote value", () => {
+      let newVote = "this is great!";
+      const articleVotes = { inc_votes: newVote };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(articleVotes)
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual({ message: "bad request" });
+        });
+    });
 });
