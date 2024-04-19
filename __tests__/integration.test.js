@@ -312,7 +312,7 @@ describe("DELETE: /api/comments/:comment_id", () => {
   });
 });
 describe("GET: /api/users", () => {
-  test("responds with a 200 status code and an array of users objects", () => {
+  test("GET: responds with a 200 status code and an array of users objects", () => {
     return request(app)
       .get("/api/users")
       .expect(200)
@@ -326,3 +326,16 @@ describe("GET: /api/users", () => {
       });
   });
 });
+
+//dont think this code works properly, ask the mentors about question 11 but well done you are nearly there
+describe("GET: /api/articles (topic query)", () => {
+  test("GET: responds with a 200 status code by input query", () => {
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({ body }) => {
+      const { articles } = body
+      expect(articles).toBeSorted("topic")
+    })
+  })
+})
