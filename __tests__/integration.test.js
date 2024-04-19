@@ -5,6 +5,7 @@ const data = require("../db/data/test-data/index");
 const app = require("../app");
 const expectedContents = require("../endpoints.json");
 
+
 beforeEach(() => seed(data));
 afterAll(() => db.end());
 
@@ -329,13 +330,25 @@ describe("GET: /api/users", () => {
 
 //dont think this code works properly, ask the mentors about question 11 but well done you are nearly there
 describe("GET: /api/articles (topic query)", () => {
-  test("GET: responds with a 200 status code by input query", () => {
+  test("GET: responds with a 200 status code by input query of article topics", () => {
     return request(app)
-    .get("/api/articles")
+    .get("/api/articles?topic=mitch")
     .expect(200)
     .then(({ body }) => {
+      console.log(body)
       const { articles } = body
-      expect(articles).toBeSorted("topic")
+      expect(articles.length).not.toBe(0)
+      articles.forEach((article) =>{
+        expect(article.topic).toBe('mitch')
+      })
     })
+  })
+  test("GET: responds with a 404 when passed a topic query which does not exist ", () => {
+    return request(app)
+      .get("/api/articles?topic=hello")
+      .expect(404)
+      .then(({body}) => {
+        expect(body).toEqual({message: "Sorry topic not found"});
+      });
   })
 })
