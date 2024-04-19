@@ -41,12 +41,14 @@ function getArticleById(req, res, next) {
 }
 
 function getAllArticles(req, res, next) {
-  return fetchAllArticles()
+  const articleTopicRequest = req.query.topic
+
+  return fetchAllArticles(articleTopicRequest)
     .then((articles) => {
       res.status(200).send({ articles });
     })
     .catch((err) => {
-      next(err);
+      next(err)
     });
 }
 
