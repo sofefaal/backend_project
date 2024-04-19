@@ -58,16 +58,18 @@ describe("GET: /api/articles/:article_id", () => {
       .get("/api/articles/1")
       .expect(200)
       .then(({ body }) => {
-        const { article } = body;
-        article.forEach((article) => {
-          expect(typeof article.author).toBe("string");
-          expect(typeof article.title).toBe("string");
-          expect(typeof article.article_id).toBe("number");
-          expect(typeof article.body).toBe("string");
-          expect(typeof article.topic).toBe("string");
-          expect(typeof article.created_at).toBe("string");
-          expect(typeof article.votes).toBe("number");
-          expect(typeof article.article_img_url).toBe("string");
+        const article  = body.article;
+        article.forEach((retrieveArticle) => {
+          expect(Object.keys(retrieveArticle).length).toBe(9);
+          expect(typeof retrieveArticle.author).toBe("string");
+          expect(typeof retrieveArticle.title).toBe("string");
+          expect(typeof retrieveArticle.article_id).toBe("number");
+          expect(typeof retrieveArticle.body).toBe("string");
+          expect(typeof retrieveArticle.topic).toBe("string");
+          expect(typeof retrieveArticle.created_at).toBe("string");
+          expect(typeof retrieveArticle.votes).toBe("number");
+          expect(typeof retrieveArticle.article_img_url).toBe("string");
+          expect(typeof retrieveArticle.comment_count).toBe("number");
         });
       });
   });
@@ -328,26 +330,61 @@ describe("GET: /api/users", () => {
   });
 });
 
-//dont think this code works properly, ask the mentors about question 11 but well done you are nearly there
 describe("GET: /api/articles (topic query)", () => {
   test("GET: responds with a 200 status code by input query of article topics", () => {
     return request(app)
-    .get("/api/articles?topic=mitch")
-    .expect(200)
-    .then(({ body }) => {
-      const { articles } = body
-      expect(articles.length).not.toBe(0)
-      articles.forEach((article) =>{
-        expect(article.topic).toBe('mitch')
-      })
-    })
-  })
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles.length).not.toBe(0);
+        articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
   test("GET: responds with a 404 when passed a topic query which does not exist ", () => {
     return request(app)
       .get("/api/articles?topic=hello")
       .expect(404)
-      .then(({body}) => {
-        expect(body).toEqual({message: "Sorry topic not found"});
+      .then(({ body }) => {
+        expect(body).toEqual({ message: "Sorry topic not found" });
       });
-  })
-})
+  });
+});
+describe("GET: /api/articles/:article_id (comment_count)", () => {
+  test("GET 200: sorts comment_count by input query", () => {
+    return request(app)
+      .get("/api/articles/1?sort_by=comment_count")
+      .expect(200)
+      .then(({ body }) => {
+        const article = body.article
+       expect(article).toBeSortedBy("comment_count")
+      });
+  });
+    test("GET 200: sorts comment_count with the value of 0 comments", () => {
+      return request(app)
+        .get("/api/articles/13?sort_by=comment_count")
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(article).toBeSortedBy("comment_count");
+        });
+    });
+      test("GET responds with a 404 query when provided article_id which does not exist in the database", () => {
+        return request(app)
+          .get("/api/articles/20?sort_by=comment_count")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body).toEqual({message: "article_id not found"});
+          });
+      });
+        test("GET responds with a 400 status code when provided with an invalid ID", () => {
+          return request(app)
+            .get("/api/articles/hello?sort_by=comment_count")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body).toEqual({ message: "bad request" });
+            });
+        });
+});
