@@ -30,8 +30,10 @@ function getEndpoints(req, res, next) {
 }
 
 function getArticleById(req, res, next) {
+  const articleCommentCount = req.query.comment_count
   const article = req.params;
-  return fetchArticleId(article.article_id)
+
+  return fetchArticleId(article.article_id, articleCommentCount)
     .then((article) => {
       res.status(200).send({ article: article });
     })
