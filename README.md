@@ -2,7 +2,7 @@
 
 Welecome to NC News, this RESTful API project emulates the backend of a news media platform, enabling interaction and manipulation of data stored in an SQL database through endpoints that encompass CRUD operations. The development process followed Test Driven Development principles, encompassing scenarios of the happy and sad path. This project requires a basic understanding of node-postgres, express and SQL.
 
-Live Version: https://backend-project-m2ru.onrender.com
+Live Version: https://backend-project-m2ru.onrender.com/api/
 
 Step 1:
 
