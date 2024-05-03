@@ -10,9 +10,11 @@ const {
     deleteCommentById,
     getUsers
 } = require("./controllers/controller")
-// const { log } = require("console")
+const cors = require("cors");
 
 const app = express()
+
+app.use(cors());
 
 app.use(express.json())
 
