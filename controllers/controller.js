@@ -44,8 +44,10 @@ function getArticleById(req, res, next) {
 
 function getAllArticles(req, res, next) {
   const articleTopicRequest = req.query.topic
+  const sortByQuery = req.query.sort_by
+  const orderByQuery = req.query.order_by
 
-  return fetchAllArticles(articleTopicRequest)
+  return fetchAllArticles(articleTopicRequest, sortByQuery, orderByQuery)
     .then((articles) => {
       res.status(200).send({ articles });
     })
@@ -65,6 +67,7 @@ function getComments(req, res, next) {
       res.status(200).send({ comments })
     })
     .catch((err) => {
+
       next(err);
     });
 }

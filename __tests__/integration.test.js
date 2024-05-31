@@ -5,7 +5,6 @@ const data = require("../db/data/test-data/index");
 const app = require("../app");
 const expectedContents = require("../endpoints.json");
 
-
 beforeEach(() => seed(data));
 afterAll(() => db.end());
 
@@ -58,7 +57,7 @@ describe("GET: /api/articles/:article_id", () => {
       .get("/api/articles/1")
       .expect(200)
       .then(({ body }) => {
-        const article  = body.article;
+        const article = body.article;
         article.forEach((retrieveArticle) => {
           expect(Object.keys(retrieveArticle).length).toBe(9);
           expect(typeof retrieveArticle.author).toBe("string");
@@ -348,7 +347,7 @@ describe("GET: /api/articles (topic query)", () => {
       .get("/api/articles?topic=hello")
       .expect(404)
       .then(({ body }) => {
-        expect(body).toEqual({ message: "Sorry topic not found" });
+        expect(body).toEqual({ message: "Sorry not found" });
       });
   });
 });
@@ -358,33 +357,64 @@ describe("GET: /api/articles/:article_id (comment_count)", () => {
       .get("/api/articles/1?sort_by=comment_count")
       .expect(200)
       .then(({ body }) => {
-        const article = body.article
-       expect(article).toBeSortedBy("comment_count")
+        const article = body.article;
+        expect(article).toBeSortedBy("comment_count");
       });
   });
-    test("GET 200: sorts comment_count with the value of 0 comments", () => {
-      return request(app)
-        .get("/api/articles/13?sort_by=comment_count")
-        .expect(200)
-        .then(({ body }) => {
-          const article = body.article;
-          expect(article).toBeSortedBy("comment_count");
-        });
-    });
-      test("GET responds with a 404 query when provided article_id which does not exist in the database", () => {
-        return request(app)
-          .get("/api/articles/20?sort_by=comment_count")
-          .expect(404)
-          .then(({ body }) => {
-            expect(body).toEqual({message: "article_id not found"});
-          });
+  test("GET 200: sorts comment_count with the value of 0 comments", () => {
+    return request(app)
+      .get("/api/articles/13?sort_by=comment_count")
+      .expect(200)
+      .then(({ body }) => {
+        const article = body.article;
+        expect(article).toBeSortedBy("comment_count");
       });
-        test("GET responds with a 400 status code when provided with an invalid ID", () => {
-          return request(app)
-            .get("/api/articles/hello?sort_by=comment_count")
-            .expect(400)
-            .then(({ body }) => {
-              expect(body).toEqual({ message: "bad request" });
-            });
-        });
+  });
+  test("GET responds with a 404 query when provided article_id which does not exist in the database", () => {
+    return request(app)
+      .get("/api/articles/20?sort_by=comment_count")
+      .expect(404)
+      .then((response) => {
+        const {body} = response
+        expect(body).toEqual({ message: "article_id not found" });
+      });
+  });
+  test("GET responds with a 400 status code when provided with an invalid ID", () => {
+    return request(app)
+      .get("/api/articles/hello?sort_by=comment_count")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toEqual({ message: "bad request" });
+      });
+  });
+});
+describe("GET: /api/articles (sorting queries)", () => {
+  test("GET sorts articles in created_at order by default", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+
+        expect(articles).toBeSorted("created_at");
+      });
+  });
+  test("GET 400: when input an invalid sort by query, returns a error message", () => {
+    return request(app)
+      .get("/api/articles?sort_by=mitchhh")
+      .expect(400)
+      .then((response) => {
+        const { body }= response
+        expect(body).toEqual({message:'invalid query value'});
+      });
+  });
+   test("GET 200: Orders by descending values when requested by input ", () => {
+     return request(app)
+       .get("/api/articles?order=asc")
+       .expect(200)
+       .then(({ body }) => {
+         const { articles } = body;
+         expect(articles).toBeSortedBy("created_at", { descending: true });
+       });
+   });
 });

@@ -8,7 +8,7 @@ const checkExists = (table, column, value) => {
     .then((sqlOutput) => {
 
         if (sqlOutput.rows.length === 0) {
-            return Promise.reject({status: 404, msg: "Resource not found"})
+            return Promise.reject({status: 404, message: "Resource not found"})
         }
     })
 }

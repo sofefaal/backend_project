@@ -30,15 +30,21 @@ function fetchArticleId(article_id, commentCount) {
     if (!article[0]) {
       return Promise.reject({
         status: 404,
-        msg: "article_id not found",
+        message: "article_id not found",
       });
     }
     return article;
   });
 }
 
-function fetchAllArticles(topic) {
-  let sqlQuery = `SELECT 
+function fetchAllArticles(topic, order_by = "DESC", sort_by = "created_at") {
+  const validSortBy = ["title", "author", "votes", "created_at"];
+  const validOrderBy = ["ASC", "DESC", "asc", "desc"];
+
+  if (!validSortBy.includes(sort_by) || !validOrderBy.includes(order_by)) {
+    return Promise.reject({ status: 400, message: "invalid query value" });
+  } else {
+    let sqlQuery = `SELECT 
   articles.article_id, 
   articles.title, 
   articles.topic, 
@@ -50,24 +56,30 @@ function fetchAllArticles(topic) {
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
-  const articleTopic = [];
-  if (topic) {
-    const topicQuery = ` WHERE articles.topic=$1`;
-    sqlQuery += topicQuery;
-    articleTopic.push(topic);
-  }
-
-  sqlQuery += ` GROUP BY articles.article_id`;
-
-  return db.query(sqlQuery, articleTopic).then(({ rows: articles }) => {
-    if (articles.length === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: "Sorry topic not found",
-      });
+    const articleTopic = [];
+    if (topic) {
+      const topicQuery = ` WHERE articles.topic=$1`;
+      sqlQuery += topicQuery;
+      articleTopic.push(topic);
     }
-    return articles;
-  });
+
+    sqlQuery += ` GROUP BY articles.article_id`;
+
+    if (sort_by) {
+      const sortByString = ` ORDER BY ${sort_by} ${order_by}`;
+      sqlQuery += sortByString;
+    }
+
+    return db.query(sqlQuery, articleTopic).then(({ rows: articles }) => {
+      if (articles.length === 0) {
+        return Promise.reject({
+          status: 404,
+          message: "Sorry not found",
+        });
+      }
+      return articles;
+    });
+  }
 }
 
 function fetchUpdatedArticles(articleVotes, article_id) {
@@ -83,7 +95,7 @@ function fetchUpdatedArticles(articleVotes, article_id) {
     )
     .then(({ rows }) => {
       if (!rows[0]) {
-        return Promise.reject({ status: 404, msg: "article_id not found" });
+        return Promise.reject({ status: 404, message: "article_id not found" });
       }
       return rows[0];
     });

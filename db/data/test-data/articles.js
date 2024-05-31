@@ -1,4 +1,4 @@
-const { articleData } = require(".");
+// const { articleData } = require(".");
 
 module.exports = [
   {

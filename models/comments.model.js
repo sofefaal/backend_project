@@ -30,7 +30,7 @@ function insertComment(newComment, article_id) {
     )
     .then(({ rows }) => {
       if (rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "article_id not found" });
+        return Promise.reject({ status: 404, message: "article_id not found" });
       }
       return rows[0];
     });
@@ -43,7 +43,7 @@ function removeCommentById(comment_id) {
     if(rows.length === 0) {
       return Promise.reject({
         status: 404,
-        msg: "Comment cannot be removed since comment_id does not exist, please try again",
+        message: "Comment cannot be removed since comment_id does not exist, please try again",
       });
     }
     return rows
